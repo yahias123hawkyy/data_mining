@@ -1,43 +1,82 @@
 
+
+
+
+from matplotlib import pyplot as plt
 from sklearn.metrics import accuracy_score
-from sklearn.discriminant_analysis import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_score, recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+from sklearn.svm import SVC
+
+
 
 
 
 
 def evaluate_model(X, y, split): 
+                # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split, random_state=42)
+
+                #  # Initialize and train Support Vector Machine classifier
+                # model = SVC(kernel='rbf', random_state=42)
+                # model.fit(X_train, y_train)
+                
+                # # Make predictions
+                # y_pred = model.predict(X_test)
+                
+                # # Calculate evaluation metrics
+                # accuracyScore = accuracy_score(y_test, y_pred)
+                # precisionScore = precision_score(y_test, y_pred, average='macro')
+                # recallScore = recall_score(y_test, y_pred, average='macro')
+                
+                # # Compute confusion matrix
+                # cm = confusion_matrix(y_test, y_pred)
+
+                # # Plot confusion matrix
+                # plt.figure(figsize=(8, 6))
+                # sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+                # plt.title('Confusion Matrix')
+                # plt.xlabel('Predicted Labels')
+                # plt.ylabel('True Labels')
+                # plt.show()
+    
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=split, random_state=42)
 
-            model = LogisticRegression(max_iter=1000)
+            model = LogisticRegression()
             model.fit(X_train, y_train)
             
             y_pred = model.predict(X_test)
             
-            accuracy = accuracy_score(y_test, y_pred)
+            accuracyScore = accuracy_score(y_test, y_pred)
             
-            precision = precision_score(y_test, y_pred, average='macro')
-            recall = recall_score(y_test, y_pred, average='macro')
+            precisionScore = precision_score(y_test, y_pred, average='macro')
+            recallScore = recall_score(y_test, y_pred, average='macro')
+
+            return accuracyScore, precisionScore, recallScore
             
-            return accuracy, precision, recall
+            
+            
+        #     cm = confusion_matrix(y_test, y_pred)
+    
+        #     # Plot confusion matrix
+        #     plt.figure(figsize=(8, 6))
+        #     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False)
+        #     plt.title('Confusion Matrix')
+        #     plt.xlabel('Predicted Labels')
+        #     plt.ylabel('True Labels')
+        #     plt.show()
+            
+            
+        #     return accuracyScore, precisionScore, recallScore
 
-
-
-def trainModel(y,x_pca,selected_features_RFC,selected_features_DTC,selected_features_SFSF,selected_features_SFSB,x_rfe,x):
-        X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.7, random_state=45)
-
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
-
-       
-        # evaluation 
-        evaluate_model(x_pca,y,0.3)
-
-        evaluate_model(selected_features_RFC,y,0.3)
-        evaluate_model(selected_features_DTC,y,0.3) 
-        evaluate_model(selected_features_SFSF,y,0.3)  
-        evaluate_model(selected_features_SFSB,y,0.3)
-        evaluate_model(x_rfe,y,0.3)
+        
+        
+def bulkEvaluate(y,x_pca,selected_features_RFC,selected_features_DTC,selected_features_SFSF,x_rfe):     
+        
+        print(evaluate_model(x_pca,y,0.3))
+        print(evaluate_model(selected_features_RFC,y,0.3))
+        print(evaluate_model(selected_features_DTC,y,0.3) )
+        print(evaluate_model(selected_features_SFSF,y,0.3)  )
+        print(evaluate_model(x_rfe,y,0.3))

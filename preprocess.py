@@ -1,71 +1,95 @@
-def find_outliers(df, arg):
-    q1 = df[arg].quantile(0.25)
-    q3 = df[arg].quantile(0.75)
-    iqr = q3 - q1
-    lower_bound = q1 - (1.5 * iqr)
-    upper_bound = q3 + (1.5 * iqr)
-    outliers = df.loc[(df[arg] < lower_bound) | (df[arg] > upper_bound)]
+
+
+
+# def find_outliers(dataFrame, featureName):
+#     q1 = dataFrame[featureName].quantile(0.25)
+#     q3 = dataFrame[featureName].quantile(0.75)
+#     iqr = q3 - q1
+#     lower_bound = q1 - (1.5 * iqr)
+#     upper_bound = q3 + (1.5 * iqr)
+#     outliers = dataFrame.loc[(dataFrame[featureName] < lower_bound) | (dataFrame[featureName] > upper_bound)]
+#     return outliers
+
+
+
+# def find_outliers(dataFrame, featureName):
+#     q1 = dataFrame[featureName].quantile(0.25)
+#     q3 = dataFrame[featureName].quantile(0.75)
+#     iqr = q3 - q1
+#     lower_bound = q1 - 1.5 * iqr
+#     upper_bound = q3 + 1.5 * iqr
+#     outliers = dataFrame.loc[~dataFrame[featureName].between(lower_bound, upper_bound)]
+#     return outliers
+
+
+from matplotlib import pyplot as plt
+import pandas as pd
+
+
+def find_outliers(dataFrame):
+    outliers = pd.DataFrame()
+    for column in dataFrame.columns:
+        q1 = dataFrame[column].quantile(0.25)
+        q3 = dataFrame[column].quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - (1.5 * iqr)
+        upper_bound = q3 + (1.5 * iqr)
+        outliers[column] = dataFrame.loc[(dataFrame[column] < lower_bound) | (dataFrame[column] > upper_bound)][column]
     return outliers
 
-# HRV_VLF -> Heart Rate Variability Very Low Frequency
+# Assuming 'dataFrame' is your DataFrame
+def showboxPlotwithoutOutliers(dataFrame):
+            outliers = find_outliers(dataFrame)
 
-def precprocessDataforAnalysis(plt,df):
+            for column in outliers.columns:
+                median = dataFrame[column].median()
+                dataFrame.loc[outliers.index, column] = median
+                
+            plt.figure(figsize=(10,6))
+            dataFrame.boxplot()
+            plt.title('Boxplot of Data without Outliers')
+            plt.xticks(rotation=45)
+            plt.show()
+
+
+
+# def precprocessDataforAnalysis(plt,df):
     
-            plt.figure(figsize=(10,8))
-            df.boxplot(column='HRV_VLF',grid=False,vert=False)
-            plt.show()
-            # histogram for HRV_VLF
-            df['HRV_VLF'].hist()
-            plt.show()
-            # remove outliers from HRV_VLF
-            outliers = find_outliers(df, 'HRV_VLF') 
-            outliers.shape ## 15 rows, 20 columns
-            df['HRV_VLF'].loc[outliers.index] = df['HRV_VLF'].median() ## replace outliers with median value
-            plt.figure(figsize=(10,8)) ## boxplot after removing outliers
-            df.boxplot(column='HRV_VLF',grid=False,vert=False) 
-            plt.show()
-            # histogram for HRV_VLF after removing outliers
-            df['HRV_VLF'].hist()
-            plt.show()
+#             preprocessOfeachFeature('HRV_VLF',plt,df)
 
 
-            # HRV_LF -> Heart Rate Variability Low Frequency
-            plt.figure(figsize=(10,8))
-            df.boxplot(column='HRV_LF',grid=False,vert=False)
-            plt.show()
-            # histogram for HRV_LF
-            df['HRV_LF'].hist()
-            plt.show()
-            # remove outliers from HRV_LF
-            outliers = find_outliers(df, 'HRV_LF')
-            outliers.shape ## 15 rows, 20 columns
-            df['HRV_LF'].loc[outliers.index] = df['HRV_LF'].median() ## replace outliers with median value
-            plt.figure(figsize=(10,8)) ## boxplot after removing outliers
-            df.boxplot(column='HRV_LF',grid=False,vert=False)
-            plt.show()
+#             preprocessOfeachFeature('HRV_LF',plt,df)
 
 
-            # HRV_HF -> Heart Rate Variability High Frequency   
-            plt.figure(figsize=(10,8))
-            df.boxplot(column='HRV_HF',grid=False,vert=False)
-            plt.show()
-            df['HRV_HF'].hist()
-            plt.show()
-            outliers = find_outliers(df, 'HRV_HF')
-            outliers.shape ## 15 rows, 20 columns
-            df['HRV_HF'].loc[outliers.index] = df['HRV_HF'].median() ## replace outliers with median value
+
+#             preprocessOfeachFeature('HRV_HF',plt,df)
+            
 
 
-            # HRV_TP -> Heart Rate Variability Total Power
-            plt.figure(figsize=(10,8))
-            df.boxplot(column='HRV_TP',grid=False,vert=False)
-            plt.show()
-            df['HRV_TP'].hist()
-            plt.show()
-            outliers = find_outliers(df, 'HRV_TP')
-            outliers.shape ## 15 rows, 20 columns
-            df['HRV_TP'].loc[outliers.index] = df['HRV_TP'].median() ## replace outliers with median value
-            df.boxplot(figsize=(20,12)) ## boxplot for all columns
-            plt.show()
-            df.hist(figsize = (12,15))
-            plt.show()
+#             preprocessOfeachFeature('HRV_TP',plt,df)
+            
+            
+
+# def preprocessOfeachFeature(featureName: str,plt,dataFrame):
+    
+    
+#             plt.figure(figsize=(10,8))
+#             dataFrame.boxplot(column=featureName,grid=False,vert=False)
+#             plt.show()
+            
+            
+#             dataFrame[featureName].hist()
+#             plt.show()
+            
+            
+#             outliers = find_outliers(dataFrame, featureName) 
+#             outliers.shape 
+#             dataFrame[featureName].loc[outliers.index] = dataFrame[featureName].median() 
+#             plt.figure(figsize=(10,8)) 
+            
+#             dataFrame.boxplot(column=featureName,grid=False,vert=False) 
+#             plt.show()
+            
+#             dataFrame[featureName].hist()
+#             plt.show()
+    

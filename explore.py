@@ -1,7 +1,9 @@
 
-def exploreData(df):
+def exploreData(dataFrame):
     
-    df.dtypes ## all data types are correct
-    df.isnull().sum() ## no missing values
-    df.info() ## get info about data
-    df.duplicated().sum() ## no duplicated values
+    print(dataFrame.isnull().sum())
+    print(dataFrame.info() )
+    
+    print(dataFrame.dtypes)
+   
+    print(dataFrame.duplicated().sum()) 

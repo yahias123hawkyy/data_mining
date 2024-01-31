@@ -5,83 +5,142 @@ from sklearn.tree import DecisionTreeClassifier
 
 from sklearn.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.feature_selection import RFE
+
 import numpy as np
 
 
 
-def featureSelection(x,y,x_scaled):
+
+def featureSelectionTechniquesWrapper(xComoponent,yComponent,x_standardized):
+    
+   featuresRFC,model= featureSelectionwithrfc(xComoponent,yComponent)
+    
+    
+   featuresDTC= featureSelectionwithDTC(xComoponent,yComponent)
+    
+    # I used here the model we already created using the random classifier model
+   featuresSFS= featureSelectionwithSFS(model,xComoponent,yComponent)
+    
+    
+   xComponentRFE= featureSelectionwithRFE(x_standardized,yComponent,xComoponent)
+   
+   
+   return featuresRFC,featuresDTC,featuresSFS,xComponentRFE
+    
+    
+    
+    
+    
+    
+    
     
 
-                model = RandomForestClassifier()
-                model.fit(x, y)
-                importances = model.feature_importances_
-                indices = np.argsort(importances)[::-1]
-                print("Feature ranking:")
 
-                for f in range(x.shape[1]):
-                    print("%d. Feature %s (%f)" % (f + 1, x.columns[indices[f]], importances[indices[f]]))
+            
+            
+            
+def featureSelectionwithrfc(xComoponent,yComponent):
+    
+                    model = RandomForestClassifier()
+                    model.fit(xComoponent, yComponent)
+                    importances = model.feature_importances_
+                    indices = np.argsort(importances)[::-1]
+                    print("\n \n")
 
-                selected_features_RFC = x[['HRV_DFA_alpha1', 'HRV_VLF', 'HRV_SD1SD2', 'HRV_DFA_alpha2', 'HRV_ApEn']]
-                selected_features_RFC.head()
+                    print("Feature ranking with random forest classifier:")
+                    print("\n \n")
 
-                # Decision Tree Classifier for feature importance
+                    for f in range(xComoponent.shape[1]):
+                        print("%d. Feature %s (%f)" % (f + 1, xComoponent.columns[indices[f]], importances[indices[f]]))
+
+                    featuresRFC = xComoponent[['HRV_ApEn', 'HRV_SampEn', 'HRV_DFA_alpha2', 'HRV_SD1SD2', 'HRV_Prc20NN']]
+                    featuresRFC.head()
+                    
+                    
+                    return featuresRFC,model
+                    
+                    
+                    
+                    
+                    
+def featureSelectionwithDTC(xComoponent,yComponent):
+                
+                # print("before")
+                # print(xComoponent["HRV_MeanNN"])
+    
                 dtree = DecisionTreeClassifier(random_state=0)
-                dtree.fit(x, y)
+                dtree.fit(xComoponent,yComponent)
 
                 # Extracting feature importances
                 dtree_importances = dtree.feature_importances_
                 indices = np.argsort(dtree_importances)[::-1]
-                for f in range(x.shape[1]):
-                    print("%d. Feature %s (%f)" % (f + 1, x.columns[indices[f]], dtree_importances[indices[f]]))
+                
+                print("\n \n")
+                print("Feature ranking with Decision tree classifier:")
+                print("\n \n")
+
+                for f in range(xComoponent.shape[1]):
+                    print("%d. Feature %s (%f)" % (f + 1, xComoponent.columns[indices[f]], dtree_importances[indices[f]]))
+
+
 
                 # Selecting features
-                selected_features_DTC = x[['HRV_DFA_alpha2', 'HRV_LF', 'HRV_HTI', 'HRV_LFHF', 'HRV_Prc20NN']]
-                selected_features_DTC.head()
+                featuresDTC =  xComoponent[['HRV_ApEn', 'HRV_SampEn', 'HRV_DFA_alpha2', 'HRV_Prc20NN', 'HRV_LFHF']]
+                featuresDTC.head()
 
-                # sfs -> Sequential Forward Selection
-                # Forward Selection using SFS from sklearn
+                # print("after")
+                # print(xComoponent["HRV_MeanNN"])
+                
+                return featuresDTC
+                
+                
+
+def featureSelectionwithSFS(model,xComponent,yComponent):
+    
+    
                 sfs_forward = SFS(estimator=model,
                                 n_features_to_select=5,
                                 direction='forward',
                                 scoring='accuracy',
                                 cv=5)
-                sfs_forward = sfs_forward.fit(x, y)
+                sfs_forward = sfs_forward.fit(xComponent, yComponent)
 
-                x.columns[sfs_forward.get_support()==True]
+                xComponent.columns[sfs_forward.get_support()==True]
 
-                selected_features_SFSF = x[['HRV_MeanNN', 'HRV_pNN50', 'HRV_LFHF', 'HRV_SD1', 'HRV_ApEn']]
-                selected_features_SFSF.head()
+                selected_features = xComponent.columns[sfs_forward.get_support()]
 
-                # Backward Elimination using SFS from sklearn
-                sfs_backward = SFS(estimator=model,
-                                n_features_to_select=5,
-                                direction='backward',
-                                scoring='accuracy',
-                                cv=5)
-                sfs_backward = sfs_backward.fit(x, y)
+# Print the selected features
+                print("Selected Features:")
+                for feature in selected_features:
+                    print(feature)
 
-                x.columns[sfs_backward.get_support()==True]
+                featuresSFS = xComponent[['HRV_MeanNN', 'HRV_SDNN', 'HRV_DFA_alpha2', 'HRV_ApEn', 'HRV_SampEn']]
 
-                selected_features_SFSB = x[['HRV_MeanNN', 'HRV_RMSSD', 'HRV_Prc80NN', 'HRV_HF', 'HRV_TP']]
-                selected_features_SFSB.head()
-
-                # logistic regression -> a statistical model that in its basic form uses a logistic function to model a binary dependent variable,
-                # although many more complex extensions exist.
-
+                featuresSFS.head()
+                
+                return featuresSFS
+    
+    
+    
+def featureSelectionwithRFE(x_standardized,yComponent,xComponent):
+    
                 model = LogisticRegression(solver='lbfgs',max_iter=6000)
 
-                # Initializing RFE model
-                rfe = RFE(estimator = model,n_features_to_select= 5)  # selecting 5 features
-                fit = rfe.fit(x_scaled, y)
+    
+                rfe = RFE(estimator = model,n_features_to_select= 5) 
+                fit = rfe.fit(x_standardized, yComponent)
 
-                # summarize the selection of the attributes
-                print("Num Features: %s" % (fit.n_features_))
-                print("Selected Features: %s" % (fit.support_))
+
                 print("Feature Ranking: %s" % (fit.ranking_))
-                x.columns[fit.get_support()==True]
+                print("Number of Features: %s" % (fit.n_features_))
+                print("Selected Features: %s" % (fit.support_))
+                
+                xComponent.columns[fit.get_support()==True]
 
-                x_rfe = x[x.columns[fit.get_support()==True]]
-                x_rfe.head()
+                xComponentRFE = xComponent[xComponent.columns[fit.get_support()==True]]
+                xComponentRFE.head()
                 
                 
-                return selected_features_RFC,selected_features_DTC,selected_features_SFSF,selected_features_SFSB, x_rfe
+                return xComponentRFE
+                
+                

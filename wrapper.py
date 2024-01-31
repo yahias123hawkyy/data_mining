@@ -1,55 +1,64 @@
 
 
-# PART 1 import libraries
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import explore
 import data_visulaize 
 import preprocess
-
 import data_crorreleation
 import pca_implementation
-
 import feature_selection
-
 import model
 
 
 
-df = pd.read_csv('Dataset_Study4.csv')
-df.head() ## first 5 rows
-df.shape ## 426 rows, 20 columns
-df.describe() ## summary statistics
+dataFrame = pd.read_csv('F:\datamining\data_mining\Dataset_Study2.csv')
 
 
-explore.exploreData(df)
+# print(dataFrame.head())
+# print(dataFrame.shape)
+
+
+# print("done with data import")
+
+
+# explore.exploreData(dataFrame)
+
+# print("done with data explore")
+
+
+# data_visulaize.showDatawithDiagrams(dataFrame,plt)
+
+# print("done with data showing")
+
+
+# preprocess.precprocessDataforAnalysis(plt,dataFrame)
+# preprocess.showboxPlotwithoutOutliers(dataFrame)
+
+# print("done with data preprocessing")
+
+
+# data_crorreleation.dataCorreleation(plt,sns,dataFrame)
+
+# print("done with data cprreleation")
 
 
 
-data_visulaize.showDatawithDiagrams(df,plt)
+xComponent,yComponent,x_standardized,x_pca = pca_implementation.createPCA(dataFrame,plt,sns)
+
+print("done with PCA")
 
 
 
-preprocess.precprocessDataforAnalysis(plt,df)
+featuresRFC,featuresDTC,featuresSFS,xComponentRFE = feature_selection.featureSelectionTechniquesWrapper(xComponent,yComponent,x_standardized)
+
+print("done with feature extract")
 
 
+model.bulkEvaluate(yComponent,x_pca,featuresRFC,featuresDTC,featuresSFS,xComponentRFE)
 
-data_crorreleation.dataCorreleation(plt,sns,df)
-
-
-
-x,y,x_scaled,x_pca= pca_implementation.createPCA(df,plt,sns)
-
-
-
-
-selected_features_RFC,selected_features_DTC,selected_features_SFSF,selected_features_SFSB,x_rfe=feature_selection.featureSelection(x,y,x_scaled)
-
-
-
-model.trainModel(y,x_pca,selected_features_RFC,selected_features_DTC,selected_features_SFSF,selected_features_SFSB,x_rfe,x)
-
+print("done with training")
 
 
 
