@@ -6,10 +6,7 @@ def dataCorreleation(plt,sns,df):
                 correlation_matrix = dataFramewithoutlabels.corr(numeric_only=True)
                
                 
-                plt.figure(figsize=(17,15))
-                sns.heatmap(correlation_matrix, cmap='coolwarm', annot=True,vmin=-1, vmax=1, linewidths=0.5, square=True)
-                plt.title('Correlation Matrixs')
-
+          
               
               
 
